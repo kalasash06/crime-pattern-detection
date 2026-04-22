@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Crime Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <h1>🚨 Crime Risk Dashboard</h1>
+    <p class="subtitle">AI-powered analysis & visualization</p>
+
+    <form method="POST">
+
+        <div class="input-group">
+            <label>State</label>
+            <select name="district">
+                {% for d in districts %}
+                    <option value="{{d}}">{{d}}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Year</label>
+            <select name="year">
+                {% for y in years %}
+                    <option value="{{y}}">{{y}}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit">Analyze</button>
+
+    </form>
+
+    {% if prediction %}
+        <div class="result 
+        {% if 'HIGH' in prediction %} high 
+        {% elif 'LOW' in prediction %} low 
+        {% else %} medium {% endif %}">
+            <h2>{{ prediction }}</h2>
+        </div>
+    {% endif %}
+
+    {% if crime_info %}
+        <p class="crime-info">{{ crime_info }}</p>
+    {% endif %}
+
+    {% if insight %}
+        <div class="insight">
+            💡 {{ insight }}
+        </div>
+    {% endif %}
+
+    {% if graph_path %}
+        <img src="{{ graph_path }}" class="graph">
+    {% endif %}
+
+</div>
+
+</body>
+</html>
