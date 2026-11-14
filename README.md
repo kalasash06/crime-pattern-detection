@@ -2,7 +2,6 @@
 
 An interactive dashboard that explores state-wise crime data for India (2001-2010), maps where crime is concentrated, and estimates a risk level for any state and year, including a 5-year outlook.
 
-**Live demo:** _add your Render link here_
 
 ## Features
 
