@@ -86,12 +86,4 @@ The free tier sleeps after a period of inactivity, so the first load can take ab
 - The merged CSV contains several rows per state-year, because the property dataset has one row per property type plus a "Total Property" row. The app keeps one row per state-year by taking the maximum value, which is the total row, so nothing is double counted.
 - The dataset covers 2001-2010, so Telangana and Ladakh are shown on the map with the values of Andhra Pradesh and Jammu & Kashmir respectively.
 
-## Limitations
 
-- Risk levels are relative to the other states and years in this dataset, not an absolute measure of safety.
-- Counts are not adjusted for population, so large states naturally score higher.
-- Forecasts use a simple linear trend and do not account for policy changes or other external factors.
-
-## Credits
-
-Originally built as a team project by [carolynaids24-afk](https://github.com/carolynaids24-afk/crime-risk-prediction). This version is a fork with a redesigned dashboard, data cleaning fix, India map and 5-year forecasting.
