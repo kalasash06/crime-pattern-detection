@@ -15,7 +15,6 @@ An interactive dashboard that explores state-wise crime data for India (2001-201
 
 ## How the risk score works
 
-This is a **rule-based risk scoring system**, not a trained machine-learning model.
 
 1. Each crime count (Rape, Theft, Property) is divided by its maximum value across the dataset, giving a 0 to 1 scale.
 2. The three scaled values are added to give a risk score from 0 to 3.
