@@ -1,64 +1,142 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Crime Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>India Safe - Crime Pattern Detection and Risk Prediction</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">&#128737;</div>
+      <div><b>India Safe</b><small>Crime Analytics</small></div>
+    </div>
+    <p class="nav-title">MAIN</p>
+    <button class="nav active" data-page="overview">Overview</button>
+    <button class="nav" data-page="state">State Analysis</button>
+    <button class="nav" data-page="yearly">Yearly Trends</button>
+    <button class="nav" data-page="heatmap">Heatmap View</button>
+    <p class="nav-title">ANALYSIS</p>
+    <button class="nav" data-page="categories">Crime Categories</button>
+    <button class="nav" data-page="predict">Risk Prediction</button>
+    <p class="foot">Data: 2001-2010<br>Rule-based risk scoring + linear trend forecast</p>
+  </aside>
 
-<div class="container">
+  <main class="content">
+    <!-- OVERVIEW -->
+    <section class="page active" id="page-overview">
+      <h1>Overview Dashboard</h1>
+      <div class="kpis">
+        <div class="card kpi"><span>TOTAL RECORDED CASES</span><b id="k-total">-</b></div>
+        <div class="card kpi"><span>STATES / UTs COVERED</span><b id="k-states">-</b></div>
+        <div class="card kpi"><span>YEAR RANGE</span><b id="k-years">-</b></div>
+        <div class="card kpi"><span>MOST COMMON CRIME</span><b id="k-top">-</b></div>
+      </div>
+      <div class="toolbar">
+        <label>Crime type
+          <select id="ov-crime"><option>Property</option><option>Theft</option><option>Rape</option></select>
+        </label>
+      </div>
+      <div class="grid2">
+        <div class="card"><h3>Crime Trend - All India</h3><div class="chartbox"><canvas id="ov-trend"></canvas></div></div>
+        <div class="card"><h3>Future Crime Prediction (trend-based)</h3><div class="chartbox"><canvas id="ov-forecast"></canvas></div></div>
+      </div>
+    </section>
 
-    <h1>🚨 Crime Risk Dashboard</h1>
-    <p class="subtitle">AI-powered analysis & visualization</p>
+    <!-- STATE -->
+    <section class="page" id="page-state">
+      <h1>State Analysis</h1>
+      <div class="toolbar">
+        <label>State <select id="st-state"></select></label>
+        <label>Crime type
+          <select id="st-crime"><option>Property</option><option>Theft</option><option>Rape</option></select>
+        </label>
+      </div>
+      <div class="grid2">
+        <div class="card"><h3>Historical Trend</h3><div class="chartbox"><canvas id="st-trend"></canvas></div></div>
+        <div class="card"><h3>Forecast (next 5 years)</h3><div class="chartbox"><canvas id="st-forecast"></canvas></div></div>
+      </div>
+    </section>
 
-    <form method="POST">
+    <!-- YEARLY -->
+    <section class="page" id="page-yearly">
+      <h1>Yearly Trends</h1>
+      <div class="toolbar">
+        <label>Crime type
+          <select id="yr-crime"><option>Property</option><option>Theft</option><option>Rape</option></select>
+        </label>
+      </div>
+      <div class="card"><h3>Cases per Year - All India</h3><div class="chartbox tall"><canvas id="yr-bar"></canvas></div></div>
+    </section>
 
-        <div class="input-group">
-            <label>State</label>
-            <select name="district">
-                {% for d in districts %}
-                    <option value="{{d}}">{{d}}</option>
-                {% endfor %}
-            </select>
+    <!-- HEATMAP -->
+<section class="page" id="page-heatmap">
+  <h1>Crime Heatmap</h1>
+  <div class="toolbar">
+    <label>Year <select id="hm-year"></select></label>
+    <label>Show
+      <select id="mp-metric">
+        <option value="Total">Overall risk score</option>
+        <option>Property</option><option>Theft</option><option>Rape</option>
+      </select>
+    </label>
+    <span class="hint">Darker red = higher. Grey = no data. Telangana and Ladakh show their parent state's value (the data is 2001-2010, before those splits).</span>
+  </div>
+  <div class="card">
+    <div id="map"></div>
+    <div class="legend"><span>Low</span><i></i><span>High</span></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h3>Top 15 states by crime type</h3>
+    <div id="hm-wrap" class="hm-wrap"></div>
+  </div>
+</section>
+
+    <!-- CATEGORIES -->
+    <section class="page" id="page-categories">
+      <h1>Crime Categories</h1>
+      <div class="grid2">
+        <div class="card"><h3>Share of Recorded Cases</h3><div class="chartbox"><canvas id="cat-pie"></canvas></div></div>
+        <div class="card">
+          <h3>Top 10 Highest-Risk States</h3>
+          <div class="toolbar"><label>Year <select id="rk-year"></select></label></div>
+          <ol id="rk-list" class="ranking"></ol>
         </div>
+      </div>
+    </section>
 
-        <div class="input-group">
-            <label>Year</label>
-            <select name="year">
-                {% for y in years %}
-                    <option value="{{y}}">{{y}}</option>
-                {% endfor %}
-            </select>
+    <!-- PREDICT -->
+    <section class="page" id="page-predict">
+      <h1>Risk Prediction</h1>
+      <div class="card">
+        <div class="toolbar">
+          <label>State <select id="pr-state"></select></label>
+          <label>Year <select id="pr-year"></select></label>
+          <button id="pr-go" class="btn">Predict Risk</button>
         </div>
-
-        <button type="submit">Analyze</button>
-
-    </form>
-
-    {% if prediction %}
-        <div class="result 
-        {% if 'HIGH' in prediction %} high 
-        {% elif 'LOW' in prediction %} low 
-        {% else %} medium {% endif %}">
-            <h2>{{ prediction }}</h2>
+        <div id="pr-result" class="result hidden">
+          <div id="pr-badge" class="badge"></div>
+          <p id="pr-insight"></p>
+          <div class="mini">
+            <div><span>Highest crime</span><b id="pr-top"></b></div>
+            <div><span>Risk score (0-3)</span><b id="pr-score"></b></div>
+            <div><span>Data year used</span><b id="pr-year-used"></b></div>
+          </div>
+                    <div class="chartbox short"><canvas id="pr-bars"></canvas></div>
+          <h3 style="margin-top:22px">Next 5 years (trend-based forecast)</h3>
+          <table class="future-table" id="pr-future"></table>
+          <p class="hint" id="pr-thr"></p>
+          <div class="chartbox short"><canvas id="pr-forecast"></canvas></div>
         </div>
-    {% endif %}
-
-    {% if crime_info %}
-        <p class="crime-info">{{ crime_info }}</p>
-    {% endif %}
-
-    {% if insight %}
-        <div class="insight">
-            💡 {{ insight }}
-        </div>
-    {% endif %}
-
-    {% if graph_path %}
-        <img src="{{ graph_path }}" class="graph">
-    {% endif %}
-
+      </div>
+    </section>
+  </main>
 </div>
-
+<script src="/static/app.js"></script>
 </body>
 </html>
